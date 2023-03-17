@@ -9,9 +9,11 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -49,6 +51,7 @@ public class WebviewActivity extends AppCompatActivity {
         webview.getSettings().setLoadWithOverviewMode(true);
         webview.getSettings().setUseWideViewPort(true);
         webview.getSettings().setDomStorageEnabled(true);
+        webview.getSettings().setSupportMultipleWindows(true);
         WebView.setWebContentsDebuggingEnabled(true);
 
         /*
@@ -58,6 +61,26 @@ public class WebviewActivity extends AppCompatActivity {
         webview.getSettings().setAllowFileAccess(true);
 
         webview.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
+                WebView newWebView = new WebView(WebviewActivity.this);
+                newWebView.getSettings().setJavaScriptEnabled(true);
+                newWebView.setWebChromeClient(this);
+                newWebView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                        view.loadUrl(request.getUrl().toString());
+                        return false;
+                    }
+                });
+
+                // Add WebView to the hierarchy
+                WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+                transport.setWebView(newWebView);
+                resultMsg.sendToTarget();
+                return true;
+            }
+
             // For Lollipop 5.0+ Devices
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             public boolean onShowFileChooser(WebView mWebView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
