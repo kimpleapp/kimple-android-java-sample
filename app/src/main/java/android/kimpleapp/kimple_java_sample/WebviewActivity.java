@@ -65,6 +65,7 @@ public class WebviewActivity extends AppCompatActivity {
             public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
                 WebView newWebView = new WebView(WebviewActivity.this);
                 newWebView.getSettings().setJavaScriptEnabled(true);
+                newWebView.getSettings().setDomStorageEnabled(true);
                 newWebView.setWebChromeClient(this);
                 newWebView.setWebViewClient(new WebViewClient() {
                     @Override
